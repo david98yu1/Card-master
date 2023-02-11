@@ -18,8 +18,9 @@ public class PlayerController : MonoBehaviour
     //fall and restart
     private Vector3 respawnPoint; //recall where palyer restart
     public GameObject fallDetector; //link the script to FallDetector
-    
-    
+
+    // Variable to record previous frame player position
+    private Vector3 previousPosition;
     
 
     private void Awake()
@@ -34,6 +35,8 @@ public class PlayerController : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
         
         respawnPoint = transform.position;
+        // Initilize previousPosition to be start of player
+        previousPosition = transform.position;
     }
 
     private void Update()
@@ -42,6 +45,15 @@ public class PlayerController : MonoBehaviour
 
         fallDetector.transform.position = new Vector2(transform.position.x, fallDetector.transform.position.y);
 
+        // If previous frame x position is the same as current x position and player is stationary, record respawn point
+        if (previousPosition.x == transform.position.x && rb.velocity == new Vector2(0, 0))
+        {
+            respawnPoint = transform.position;
+        }
+        else
+        {
+            previousPosition = transform.position;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -49,13 +61,16 @@ public class PlayerController : MonoBehaviour
         if (collision.tag == "FallDetector")
         {
             transform.position = respawnPoint;
+            rb.velocity = new Vector2(0, 0);
         }
+        /*
         else if (collision.tag == "Checkpoint")
         {
             respawnPoint = transform.position;
         }
+        */
     }
-    
+
     public void Jump()
     {
         rb.velocity = new Vector2(rb.velocity.x, 10 * speed);
